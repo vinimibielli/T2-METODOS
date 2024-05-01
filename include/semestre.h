@@ -9,9 +9,7 @@ private:
     std::string nome;
     float passar;
     float reprovar;
-    float trancar;
-    float alunos;
-    float alunosMais;
+    int semestre;
 
 public:
     Semestre();
@@ -19,15 +17,11 @@ public:
     std::string getNome();
     float getPassar();
     float getReprovar();
-    float getTrancar();
-    float getAlunos();
-    float getAlunosMais();
-    void setAlunos(float alunos);
+    int getSemestre();
     void setNome(std::string nome);
     void setPassar(float passar);
     void setReprovar(float reprovar);
-    void setTrancar();
-    void somaAlunos(float alunos);
-    void setAlunosMais(float alunosMais);
+    void setSemestre(int semestre);
+
 };
 #endif

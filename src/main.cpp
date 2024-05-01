@@ -2,11 +2,11 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#include "semestre.cpp"
 #include <vector>
-#include <windows.h>
+#include <iomanip>
+#include "semestre.cpp"
 
-#define caso "data\\caso1.txt"
+#define caso "data\\caso9.txt"
 
 int main()
 {
@@ -18,8 +18,14 @@ int main()
     std::vector<Semestre> semestres;
     std::vector<std::string> nomes;
     float formados = 0;
+    float restantes = 0;
+    std::string casoteste;
 
-    casos.open(caso);
+    std::cout << "Digite o nome do caso teste: ";
+    std::cin >> casoteste;
+
+    casos.open("data\\" + casoteste + ".txt");
+    // casos.open(caso);
 
     if (!casos.is_open())
     {
@@ -49,7 +55,7 @@ int main()
             getline(s, palavra, ' ');
             // std::cout << palavra << std::endl;
 
-            if (palavra == "->")
+            if (palavra == "->" || palavra == "")
             {
                 i++;
                 continue;
@@ -57,9 +63,20 @@ int main()
 
             if (i == 0)
             {
+                std::string num;
+                for (char c : palavra)
+                {
+                    if (isdigit(c))
+                    {
+                        num += c;
+                    }
+                }
+                int sem = std::stoi(num);
+
                 if (semestres.size() == 0)
                 {
                     semestre.setNome(palavra);
+                    semestre.setSemestre(sem);
                 }
                 else
                 {
@@ -74,6 +91,7 @@ int main()
                     if (!existe)
                     {
                         semestre.setNome(palavra);
+                        semestre.setSemestre(sem);
                     }
                 }
             }
@@ -119,54 +137,102 @@ int main()
 
     casos.close();
 
-    for (auto &sem : semestres)
-    {
-        sem.setTrancar();
-    }
-
     std::vector<Semestre> semestresaux = semestres;
     for (auto &sem : semestres)
     {
         // std::vector<Semestre> semestres2 = semestres;
-        int i = sem.getNome().back() - '0';
+
+        int i = sem.getSemestre();
         semestresaux[i - 1] = sem;
     }
+    Semestre *aux = new Semestre();
+    aux->setNome("Gradu");
     semestres = semestresaux;
-    delete &semestresaux;
+    semestres.push_back(*aux);
+    delete &semestresaux, aux;
 
-    for (auto &sem : semestres)
+    float matriz[semestres.size()][(semestres.size() + 1)];
+    float resultalunos[semestres.size()];
+
+    for (int i = 0; i < semestres.size(); i++)
     {
-        std::cout << sem.getNome() << " Passar: " << sem.getPassar() << " Reprovar: " << sem.getReprovar() << " Trancar: " << sem.getTrancar() << std::endl;
-    }
-
-int j = 0;
-    while(j < 8){
-        
-        float passaram, reprovaram, trancaram;
-        for (auto &sem : semestres){
-            if((sem.getNome().back() - '0') == 1){
-                sem.somaAlunos(alunos);
-                //std::cout << sem.getNome() << " Alunos: " << sem.getAlunos();
-            }else{
-                if(sem.getAlunos() == 0 && sem.getAlunosMais() == 0){
-                    sem.setAlunosMais(passaram);
-                    //continue;
-                } else{
-                    sem.somaAlunos(sem.getAlunosMais());
-                    sem.setAlunosMais(passaram);
-                }
-                //std::cout << sem.getNome() << " Alunos: " << sem.getAlunos();
-            }
-        passaram = sem.getPassar() * sem.getAlunos();
-        reprovaram = sem.getReprovar() * sem.getAlunos();
-        trancaram = sem.getTrancar() * sem.getAlunos();
-        sem.setAlunos(reprovaram);
-       // std::cout << " Aprovados: " << passaram << " Reprovados: " << reprovaram << " Trancaram: " << trancaram << " Alunos restantes: " << sem.getAlunos() << " AlunosMais: " << sem.getAlunosMais() << std::endl;
+        resultalunos[i] = 0;
+        for (int j = 0; j < semestres.size() + 1; j++)
+        {
+            matriz[i][j] = 0;
         }
-        formados = formados + passaram;
-
-        //std::cout << "Formados: " << formados << std::endl;
-        j++;
+        matriz[i][semestres.size()] = 0;
     }
+
+    for (int i = 0; i < semestres.size(); i++)
+    {
+        for (int j = 0; j < semestres.size() + 1; j++)
+        {
+            if (i == j)
+            {
+                matriz[i][j] = semestres[i].getReprovar() - 1;
+            }
+            else if (i - 1 == j)
+            {
+                matriz[i][j] = semestres[i - 1].getPassar();
+            }
+        }
+    }
+
+    matriz[0][semestres.size()] = alunos * -1;
+
+    /*for(int i = 0; i < semestres.size(); i++){
+        std::cout << semestres[i].getNome() << ": ";
+        for(int j = 0; j < semestres.size() + 1; j++){
+            if(i != j){
+                std::cout << " ";
+            }
+            std::cout << std::fixed << std::setprecision(4) << matriz[i][j] << "     ";
+        }
+        std::cout << std::endl;
+    }*/
+
+    for (int i = 0; i < semestres.size() - 1; i++)
+    {
+        for (int j = i + 1; j < semestres.size(); j++)
+        {
+            float f = matriz[j][i] / matriz[i][i];
+            for (int k = 0; k < semestres.size() + 1; k++)
+            {
+                matriz[j][k] = matriz[j][k] - f * matriz[i][k];
+            }
+        }
+    }
+
+    for (int i = semestres.size() - 1; i >= 0; i--)
+    {
+        resultalunos[i] = matriz[i][semestres.size()];
+
+        for (int j = i + 1; j < semestres.size(); j++)
+        {
+            if (i != j)
+            {
+                resultalunos[i] = resultalunos[i] - matriz[i][j] * resultalunos[j];
+            }
+        }
+        resultalunos[i] = resultalunos[i] / matriz[i][i];
+    }
+
+    for (int i = 0; i < semestres.size(); i++)
+    {
+        if (i == semestres.size() - 1)
+        {
+            formados = resultalunos[i];
+        }
+        else
+        {
+            restantes += resultalunos[i];
+        }
+    }
+
+    std::cout << "Alunos formados: " << std::fixed << std::setprecision(0) << formados << std::endl;
+    std::cout << "Alunos restantes: " << std::fixed << std::setprecision(0) << restantes << std::endl;
+    std::cout << "Total de alunos: " << std::fixed << std::setprecision(0) << formados + restantes << std::endl;
+
     return 0;
 }

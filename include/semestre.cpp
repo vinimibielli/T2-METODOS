@@ -5,9 +5,6 @@ Semestre::Semestre(){
     nome = "";
     passar = 0;
     reprovar = 0;
-    trancar = 0;
-    alunos = 0;
-    alunosMais = 0;
 }
 
 Semestre::~Semestre(){
@@ -25,16 +22,8 @@ float Semestre::getReprovar(){
     return reprovar;
 }
 
-float Semestre::getTrancar(){
-    return trancar;
-}
-
-float Semestre::getAlunos(){
-    return alunos;
-}
-
-float Semestre::getAlunosMais(){
-    return alunosMais;
+int Semestre::getSemestre(){
+    return semestre;
 }
 
 void Semestre::setNome(std::string nome){
@@ -49,21 +38,6 @@ void Semestre::setReprovar(float reprovar){
     this->reprovar = reprovar;
 }
 
-void Semestre::setTrancar(){
-    float soma = passar + reprovar;
-    this->trancar = 1 - soma;
+void Semestre::setSemestre(int semestre){
+    this->semestre = semestre;
 }
-
-void Semestre::setAlunos(float alunos){
-    this->alunos = alunos;
-}
-
-void Semestre::somaAlunos(float alunos){
-    this->alunos = this->alunos + alunos;
-}
-
-void Semestre::setAlunosMais(float alunosMais){
-    this->alunosMais = alunosMais;
-}
-
-
