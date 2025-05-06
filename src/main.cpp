@@ -6,7 +6,7 @@
 #include <iomanip>
 #include "semestre.cpp"
 
-#define caso "data\\caso9.txt"
+#define caso "..\data\caso9.txt"
 
 int main()
 {
